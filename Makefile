@@ -1,7 +1,23 @@
-all:
-	gcc -march=x86-64 -ffreestanding -Wall -m16 -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common   -c -o main.o main.c
-	as -march=i386 --32 -o boot.o boot.s
-	ld -m elf_i386 -static -Tmain.ld -nostdlib --nmagic -o xana main.o boot.o # --print-map
+CFLAGS = -march=x86-64 -ffreestanding -Wall -m16 -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
 
-start:
-	qemu-system-x86_64 -enable-kvm -fda xana -serial stdio -monitor none -nographic
+ASFLAGS = -march=i386 --32
+
+LDFLAGS = -m elf_i386 -static -nostdlib --nmagic
+
+QEMU = qemu-system-x86_64
+QEMUFLAGS = -enable-kvm -fda $(TARGET) -serial stdio -monitor none -nographic
+
+OBJS = main.o boot.o
+TARGET = xana
+
+all: $(TARGET)
+
+$(TARGET): LDFLAGS += -Tmain.ld
+$(TARGET): $(OBJS) main.ld
+	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
+
+start: $(TARGET)
+	$(QEMU) $(QEMUFLAGS)
+
+clean:
+	$(RM) $(OBJS) $(TARGET)
