@@ -10,11 +10,11 @@ boot:
     mov %ax, %ds
     mov $0x7c00, %sp
 
-    mov $0x61, %al
-    mov $0x0e, %ah
-    mov $0x00, %bh
-    mov $0x07, %bl
+#    mov $0x61, %al
+#    mov $0x0e, %ah
+#    mov $0x00, %bh
+#    mov $0x07, %bl
 
-    int $0x10
+#    int $0x10
 
     jmpl $0, $start
