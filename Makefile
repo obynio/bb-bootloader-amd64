@@ -8,7 +8,7 @@ QEMU = qemu-system-x86_64
 QEMUFLAGS = -enable-kvm -fda $(TARGET) -serial stdio -monitor none -nographic
 
 OBJS = main.o boot.o
-TARGET = xana
+TARGET = wispr
 
 all: $(TARGET)
 
