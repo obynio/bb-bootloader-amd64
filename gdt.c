@@ -41,7 +41,20 @@ void init_gdt()
             "jmpl $0x08, $idt");
 }
 
-void stage1() {
+static void gdt_set_gate(int32_t entry, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
+{
+    gdt_entries[entry].base_low = (base & 0xFFFF);
+    gdt_entries[entry].base_middle = (base >> 16) & 0xFF;
+    gdt_entries[entry].base_high = (base >> 24) & 0xFF;
+
+    gdt_entries[entry].limit_low = (limit & 0xFFFF);
+    gdt_entries[entry].granularity = (limit >> 16) & 0x0F;
+
+    gdt_entries[entry].granularity |= gran & 0xF0;
+    gdt_entries[entry].access = access;
+}
+
+void gdt() {
     char read[] = "/ok";
     prints(read);
     init_gdt();
