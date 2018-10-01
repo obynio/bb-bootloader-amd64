@@ -1,4 +1,4 @@
-CFLAGS = -march=x86-64 -ffreestanding -Wall -m16 -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
+CFLAGS = -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
 
 ASFLAGS = -march=i386 --32
 
@@ -11,6 +11,9 @@ OBJS = stage0.o stage1.o idt.o boot.o
 TARGET = wispr
 
 all: $(TARGET)
+
+stage0.o: CFLAGS += -m16
+stage1.o: CFLAGS += -m16
 
 $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
