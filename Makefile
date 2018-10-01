@@ -5,9 +5,10 @@ ASFLAGS = -march=i386 --32
 LDFLAGS = -m elf_i386 -static -nostdlib --nmagic
 
 QEMU = qemu-system-x86_64
-QEMUFLAGS = -enable-kvm -fda $(TARGET) -serial stdio -monitor none -nographic
+QEMUFLAGS = -enable-kvm -fda $(TARGET) -serial stdio
+QEMUCLI = -monitor none -nographic
 
-OBJS = main.o boot.o
+OBJS = stage0.o stage1.o boot.o
 TARGET = wispr
 
 all: $(TARGET)
@@ -16,7 +17,10 @@ $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
-start: $(TARGET)
+boot: $(TARGET)
+	$(QEMU) $(QEMUFLAGS) $(QEMUCLI)
+
+debug: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
 
 clean:
