@@ -1,4 +1,3 @@
-
 #include <stdint.h>
 
 // stage0.c

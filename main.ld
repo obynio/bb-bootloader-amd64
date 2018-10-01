@@ -13,12 +13,20 @@ SECTIONS{
     .magicnb : AT(0x7dfe) {
         SHORT(0xaa55);
     }
-    .stage1 : {
+    .stage1 : AT(0x7e00) {
         begin_addr = .;
         stage1.o(.text);
         stage1.o(.data);
         stage1.o(.bss);
         stage1.o(.rodata);
     }
+    .idt : {
+        idt_addr = .;
+        idt.o(.text);
+        idt.o(.data);
+        idt.o(.bss);
+        idt.o(.rodata);
+    }
+ 
  
 }
