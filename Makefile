@@ -1,13 +1,13 @@
-CFLAGS = -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
-
+CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
 ASFLAGS = -march=i386 --32
+LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 
-LDFLAGS = -m elf_i386 -static -nostdlib --nmagic
+VPATH = src
 
 QEMU = qemu-system-x86_64
-QEMUFLAGS = -enable-kvm -fda $(TARGET)
+QEMUFLAGS = -fda $(TARGET)
 
-OBJS = stage0.o gdt.o idt.o boot.o
+OBJS = stage0.o gdt.o idt.o boot.o 32bit.o
 TARGET = wispr
 
 all: $(TARGET)
@@ -20,18 +20,30 @@ $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
+elftest: LDFLAGS += -Tmain.ld
+elftest: $(OBJS) main.ld
+	$(LD) $(LDFLAGS) --oformat elf64-x86-64 $(OBJS) -o elftest
+
 qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
 
-boot: QEMUFLAGS += -serial stdio -monitor none -nographic
+boot: QEMUFLAGS += -serial stdio -monitor none -nographic -enable-kvm
 boot: $(TARGET) qemu
 
-debug: QEMUFLAGS += -serial stdio
+# DEBUG
+debug: QEMUFLAGS += -serial stdio -enable-kvm
 debug: $(TARGET) qemu
 
+gdb: QEMU = qemu-system-i386
 gdb: QEMUFLAGS += -S -s -daemonize
 gdb: $(TARGET) qemu
-	gdb -ex 'target remote localhost:1234'
+	gdb -ex 'set architecture i8086'\
+		-ex 'target remote localhost:1234'\
+		-ex 'b *0x7c00'\
+		-ex 'continue'
+# /DEBUG
 
 clean:
-	$(RM) $(OBJS) $(TARGET)
+	$(RM) $(OBJS) $(TARGET) $(TARGET).map elftest
+
+.PHONY: debug

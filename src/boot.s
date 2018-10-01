@@ -3,7 +3,8 @@
 .globl boot
 
 boot:
-#    cli # disable ring0 interupts
+    cli # disable ring0 interupts
+    xor %ax, %ax
     xor %ax, %ax
     mov %ax, %ss
     mov %ax, %es

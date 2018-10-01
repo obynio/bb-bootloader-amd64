@@ -15,7 +15,5 @@ struct gdt_ptr_struct
 {
     uint16_t limit;               // The upper 16 bits of all selector limits.
     uint32_t base;                // The address of the first gdt_entry_t struct.
-}
-    __attribute__((packed));
+} __attribute__((packed));
 typedef struct gdt_ptr_struct gdt_ptr_t;
-
