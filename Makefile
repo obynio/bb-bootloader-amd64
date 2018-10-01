@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -fno-common
+CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -mno-sse -fno-common
 ASFLAGS = -march=i386 --32
 LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 
