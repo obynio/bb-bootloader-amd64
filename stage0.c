@@ -1,4 +1,6 @@
-#include <stdint.h>
+#include "stage.h"
+
+extern char begin_addr;
 
 void printc(char chr) {
     __asm__ volatile ("int $0x10"::"a"(0x0e00 | chr),"b"(0x00));
@@ -18,7 +20,7 @@ void set_a20(uint8_t status) {
         __asm__ volatile ("int $0x15"::"a"(0x2400));
 }
 
-uint8_t secte() {
+uint8_t read_disk(uint8_t nb_sector) {
 
     // ah = 0x02 // bios read sector function
     // al = 0x04 // number of sector to read
@@ -28,12 +30,17 @@ uint8_t secte() {
     // dl = 0x00 // drive number
     //
     // al // number of sector read
-    uint8_t read_nb = 0;
-    __asm__ volatile ("int $0x13":"=a"(read_nb):"a"(0x2 << 8 & 0x4),"c"(0x2),"d"(0x0));
-    return read_nb;
+    uint8_t read_sector = 0;
+    __asm__ volatile ("int $0x13":"=a"(read_sector):
+            "a"(0x0200 | nb_sector),
+            "b"(&begin_addr),
+            "c"(0x2),
+            "d"(0x0));
+
+    return read_sector;
 }
 
-void start() {
+void stage0() {
     printc('b'); 
 
     set_a20(1);
@@ -43,8 +50,9 @@ void start() {
     else
         printc('n'); 
 
-    uint8_t read_nb = secte();
+    uint8_t read_nb = read_disk(4);
     printc(read_nb + 48);
+    stage1();
 
     return;
 }
