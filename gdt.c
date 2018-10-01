@@ -22,7 +22,7 @@ void init_gdt()
 
     // load_gdt(&gdt_ptr);
     __asm__ volatile ("lgdt gdt_ptr");
-    
+
     __asm__ volatile ("mov %cr0,%eax;"
             "or $0x1,%eax;"
             "mov %eax,%cr0");
@@ -49,7 +49,7 @@ static void gdt_set_gate(int32_t entry, uint32_t base, uint32_t limit, uint8_t a
     gdt_entries[entry].access = access;
 }
 
-void stage1() {
+void gdt() {
     char read[] = "/ok";
     prints(read);
     init_gdt();

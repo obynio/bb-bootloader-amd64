@@ -78,14 +78,14 @@ void stage0() {
         char ram[] = "/ram";
         prints(ram);
     }
-    
+
     char read[] = "/read";
     prints(read);
 
     uint8_t read_nb = read_disk(9);
     printc(read_nb + 48);
 
-    stage1();
+    gdt();
 
     return;
 }
