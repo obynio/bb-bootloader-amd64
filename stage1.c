@@ -1,5 +1,6 @@
 #include "stage.h"
 
 void stage1() {
-    printc('o'); 
+    char read[] = "/ok";
+    prints(read);
 }

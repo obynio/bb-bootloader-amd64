@@ -7,6 +7,11 @@ void printc(char chr) {
     return;
 }
 
+void prints(char *chr) {
+    while (*chr)
+        printc(*chr++);
+}
+
 uint8_t get_a20() {
     uint8_t a = 0;
     __asm__ volatile ("int $0x15":"=r"(a):"a"(0x2402));
@@ -41,17 +46,23 @@ uint8_t read_disk(uint8_t nb_sector) {
 }
 
 void stage0() {
-    printc('b'); 
+    char boot[] = "boot";
+    prints(boot);
 
     set_a20(1);
 
     if (get_a20() == 1)
-        printc('y'); 
-    else
-        printc('n'); 
+    {
+        char a20[] = "/a20";
+        prints(a20);
+    }
+
+    char read[] = "/read";
+    prints(read);
 
     uint8_t read_nb = read_disk(4);
     printc(read_nb + 48);
+
     stage1();
 
     return;
