@@ -27,6 +27,4 @@ SECTIONS{
         idt.o(.bss);
         idt.o(.rodata);
     }
-
-
 }
