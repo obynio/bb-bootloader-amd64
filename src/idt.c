@@ -95,14 +95,11 @@ idt_ptr_t   idt_ptr;
 
 typedef struct registers
 {
-    uint32_t ds;                             // Data segment selector
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
     uint32_t int_no, err_code;               // Interrupt number and error code (if applicable)
     uint32_t eip, cs, eflags, useresp, ss;   // Pushed by the processor automatically.
 } registers_t;
 typedef void (*isr_handler_t)(registers_t);
-
-isr_handler_t interrupt_handlers[256];
 
 void isr_handler(registers_t regs)
 {
@@ -111,17 +108,8 @@ void isr_handler(registers_t regs)
 
     }
 
-    if(interrupt_handlers[regs.int_no])
-    {
-        //printf("Handling %d!\n", regs.int_no);
-        interrupt_handlers[regs.int_no](regs);
-        //printf("Returning!\n");
-    }
-//    else {
-//        printf("Got ISR.\n");
-//        PANIC("Unhandled ISR.\n");
-//    }
-    outb(PORT, '3');
+    outb(PORT, regs.int_no + '0');
+
 }
 
 
@@ -134,17 +122,6 @@ void irq_handler(registers_t regs)
     }
 
 
-    if(interrupt_handlers[regs.int_no])
-    {
-        interrupt_handlers[regs.int_no](regs);
-    }
-//    else {
-//        if(regs.int_no == 33) return;
-//        printf("Got IRQ.\n");
-//        char buff[1024];
-//        sprintf(buff, "Unhandled IRQ %d\n", regs.int_no);
-//        PANIC(buff);
-//    }
     outb(PORT, '4');
     
 }
@@ -186,8 +163,7 @@ void init_idt()
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
-
-/*
+    
     // IRQ entries
     idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
     idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
@@ -205,7 +181,6 @@ void init_idt()
     idt_set_gate(45, (uint32_t)irq13, 0x08, 0x8E);
     idt_set_gate(46, (uint32_t)irq14, 0x08, 0x8E);
     idt_set_gate(47, (uint32_t)irq15, 0x08, 0x8E);
-*/
 
     __asm__ volatile ("lidt %0"
             :
@@ -229,7 +204,7 @@ void idt() {
     init_serial();
     victory();
     init_idt();
-    __asm__ volatile ("int $0x13");
+    __asm__ volatile ("int $0x8");
     while (1)
         ;
 }

@@ -32,6 +32,9 @@ boot: QEMUFLAGS += -serial stdio -monitor none -nographic -enable-kvm
 boot: $(TARGET) qemu
 
 # DEBUG
+debug: QEMUFLAGS += -serial stdio -enable-kvm
+debug: $(TARGET) qemu
+
 gdb: QEMU = qemu-system-i386
 gdb: QEMUFLAGS += -S -s -daemonize
 gdb: $(TARGET) qemu
