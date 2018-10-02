@@ -10,3 +10,6 @@ void gdt();
 
 // idt.c
 void idt();
+
+// paging.c
+void paging();

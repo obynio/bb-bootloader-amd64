@@ -27,4 +27,11 @@ SECTIONS{
         idt.o(.bss);
         idt.o(.rodata);
     }
+    .paging : {
+        paging_addr = .;
+        paging.o(.text);
+        paging.o(.data);
+        paging.o(.bss);
+        paging.o(.rodata);
+    }
 }
