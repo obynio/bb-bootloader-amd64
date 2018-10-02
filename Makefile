@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -Wall -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -mno-sse -fno-common
+CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -mno-sse -fno-common
 ASFLAGS = -march=i386 --32
 LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 
@@ -20,9 +20,9 @@ $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
-elftest: LDFLAGS += -Tmain.ld
-elftest: $(OBJS) main.ld
-	$(LD) $(LDFLAGS) --oformat elf64-x86-64 $(OBJS) -o elftest
+$(TARGET).elf: LDFLAGS += -Tmain.ld --oformat elf64-x86-64
+$(TARGET).elf: $(OBJS) main.ld
+	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET).elf
 
 qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
@@ -41,6 +41,6 @@ gdb: $(TARGET) qemu
 # !DEBUG
 
 clean:
-	$(RM) $(OBJS) $(TARGET) $(TARGET).map elftest
+	$(RM) $(OBJS) $(TARGET) $(TARGET).map $(TARGET).elf
 
 .PHONY: debug
