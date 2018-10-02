@@ -3,24 +3,19 @@
 
 #define PORT 0x3f8   /* COM1 */
 
-void outb(uint16_t port, uint8_t v)
-{
-    __asm__ volatile ("out %%al,%%dx" : : "a"(v), "d"(port));
-}
-
 void init_serial() {
-    outb(PORT + 1, 0x00);    // Disable all interrupts
-    outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
-    outb(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
-    outb(PORT + 1, 0x00);    //                  (hi byte)
-    outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
-    outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
-    outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+    OUTB(PORT + 1, 0x00);    // Disable all interrupts
+    OUTB(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
+    OUTB(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud
+    OUTB(PORT + 1, 0x00);    //                  (hi byte)
+    OUTB(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
+    OUTB(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
+    OUTB(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
 }
 
 void printc_32bits(char c)
 {
-    outb(PORT, c);
+    OUTB(PORT, c);
 }
 
 void prints_32bits(const char *chr)
@@ -93,22 +88,21 @@ static void idt_set_gate(uint8_t,uint32_t,uint16_t,uint8_t);
 idt_entry_t idt_entries[256];
 idt_ptr_t   idt_ptr;
 
-typedef struct registers
+struct registers
 {
     uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // Pushed by pusha.
     uint32_t int_no, err_code;               // Interrupt number and error code (if applicable)
     uint32_t eip, cs, eflags, useresp, ss;   // Pushed by the processor automatically.
-} registers_t;
-typedef void (*isr_handler_t)(registers_t);
+};
 
-void isr_handler(registers_t regs)
+void isr_handler(struct registers regs)
 {
     if(regs.int_no == GENERAL_PROTECTION_FAULT)
     {
 
     }
 
-    outb(PORT, regs.int_no + '0');
+    OUTB(PORT, regs.int_no + '0');
 }
 
 // These extern directives let us access the addresses of our ASM ISR handlers.
@@ -164,14 +158,14 @@ extern void irq13();
 extern void irq14();
 extern void irq15();
 
-void irq_handler(registers_t regs)
+void irq_handler(struct registers regs)
 {
     //If int_no >= 40, we must reset the slave as well as the master
     if(regs.int_no >= 40)
     {
         //reset slave
     }
-    outb(PORT, '4');
+    OUTB(PORT, '4');
 }
 
 static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags)
