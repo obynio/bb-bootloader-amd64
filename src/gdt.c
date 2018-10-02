@@ -1,4 +1,4 @@
-#include "stage.h"
+#include "root.h"
 #include "gdt.h"
 
 gdt_entry_t gdt_entries[3];

@@ -5,16 +5,16 @@ SECTIONS{
     . = 0x7c00;
     .stage0 : AT(0x7c00) {
         boot.o(.text.origin);
-        stage0.o(.text);
-        stage0.o(.data);
-        stage0.o(.bss);
-        stage0.o(.rodata);
+        init.o(.text);
+        init.o(.data);
+        init.o(.bss);
+        init.o(.rodata);
     }
     .magicnb : AT(0x7dfe) {
         SHORT(0xaa55);
     }
     .gdt : AT(0x7e00) {
-        begin_addr = .;
+        gdt_addr = .;
         gdt.o(.text);
         gdt.o(.data);
         gdt.o(.bss);

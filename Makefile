@@ -7,12 +7,12 @@ VPATH = src
 QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET)
 
-OBJS = stage0.o gdt.o idt.o boot.o 32bit.o
+OBJS = boot.o init.o gdt.o idt.o
 TARGET = wispr
 
 all: $(TARGET)
 
-stage0.o: CFLAGS += -m16
+init.o: CFLAGS += -m16
 gdt.o: CFLAGS += -m16
 idt.o: CFLAGS += -m32
 

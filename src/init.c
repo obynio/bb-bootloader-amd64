@@ -1,6 +1,6 @@
-#include "stage.h"
+#include "root.h"
 
-extern char begin_addr;
+extern char gdt_addr;
 
 void printc(char chr) {
     __asm__ volatile ("int $0x10"::"a"(0x0e00 | chr),"b"(0x00));
@@ -53,7 +53,7 @@ uint8_t read_disk(uint8_t nb_sector) {
     uint8_t read_sector = 0;
     __asm__ volatile ("int $0x13":"=r"(read_sector):
             "a"(0x0200 | nb_sector),
-            "b"(&begin_addr),
+            "b"(&gdt_addr),
             "c"(0x2),
             "d"(0x0));
 
