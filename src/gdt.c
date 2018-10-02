@@ -1,4 +1,4 @@
-#include "stage.h"
+#include "root.h"
 #include "gdt.h"
 
 static void gdt_set_gate(int32_t,uint32_t,uint32_t,uint8_t,uint8_t);
@@ -8,27 +8,29 @@ gdt_ptr_t   gdt_ptr;
 //idt_entry_t idt_entries[256];
 //idt_ptr_t   idt_ptr;
 
-//void printn(uint8_t c)
-//{
-//    if (c > 0x9)
-//        printc(c - 0xa + 'a');
-//    else
-//        printc(c + '0');
-//}
-//
-//void printuint8(uint8_t i)
-//{
-//    printn(i >> 4);
-//    printn(i & 0x0F);
-//    printc(' ');
-//}
-//
-//void hexdump()
-//{
-//    printc('\n');
-//    for (uint8_t *c = gdt_entries; c < gdt_entries + 10; c++)
-//        printuint8(*c);
-//}
+/*
+void printn(uint8_t c)
+{
+    if (c > 0x9)
+        printc(c - 0xa + 'a');
+    else
+        printc(c + '0');
+}
+
+void printuint8(uint8_t i)
+{
+    printn(i >> 4);
+    printn(i & 0x0F);
+    printc(' ');
+}
+
+void hexdump()
+{
+    printc('\n');
+    for (uint8_t *c = gdt_entries; c < gdt_entries + 10; c++)
+        printuint8(*c);
+}
+*/
 
 void init_gdt()
 {
