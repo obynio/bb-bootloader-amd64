@@ -18,6 +18,9 @@
 #define ALIGNMENT_CHECK_EXCEPTION   17
 #define MACHINE_CHECK_EXCEPTION     18
 
+#define OUTB(PORT, VAL)                                       \
+    __asm__ volatile ("out %%al,%%dx" : : "a"(VAL), "d"(PORT))
+
 // A struct describing an interrupt gate.
 struct idt_entry_struct
 {
