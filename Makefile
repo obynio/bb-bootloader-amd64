@@ -7,7 +7,7 @@ VPATH = src
 QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET)
 
-OBJS = boot.o init.o gdt.o idt.o
+OBJS = boot.o init.o gdt.o idt.o idt_asm.o
 TARGET = wispr
 
 all: $(TARGET)
@@ -15,6 +15,7 @@ all: $(TARGET)
 init.o: CFLAGS += -m16
 gdt.o: CFLAGS += -m16
 idt.o: CFLAGS += -m32
+idt_asm.o: CFLAGS += -m32
 
 $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
@@ -31,6 +32,9 @@ boot: QEMUFLAGS += -serial stdio -monitor none -nographic -enable-kvm
 boot: $(TARGET) qemu
 
 # DEBUG
+debug: QEMUFLAGS += -serial stdio -enable-kvm
+debug: $(TARGET) qemu
+
 gdb: QEMU = qemu-system-i386
 gdb: QEMUFLAGS += -S -s -daemonize
 gdb: $(TARGET) qemu
