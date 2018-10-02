@@ -18,21 +18,21 @@ void init_serial() {
     outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
 }
 
+void printc_32bits(char c)
+{
+    outb(PORT, c);
+}
+
+void prints_32bits(const char *chr)
+{
+    while (*chr)
+        printc_32bits(*chr++);
+}
+
 void victory()
 {
-    outb(PORT, '\n');
-    outb(PORT, '3');
-    outb(PORT, '2');
-    outb(PORT, 'b');
-    outb(PORT, 'i');
-    outb(PORT, 't');
-    outb(PORT, 's');
-    outb(PORT, '!');
-    outb(PORT, ' ');
-    outb(PORT, '\\');
-    outb(PORT, 'o');
-    outb(PORT, '/');
-    outb(PORT, '\n');
+    char s[] = "\n32bits! \\o/\n";
+    prints_32bits(s);
 }
 
 // These extern directives let us access the addresses of our ASM ISR handlers.
@@ -109,9 +109,60 @@ void isr_handler(registers_t regs)
     }
 
     outb(PORT, regs.int_no + '0');
-
 }
 
+// These extern directives let us access the addresses of our ASM ISR handlers.
+extern void isr0 ();
+extern void isr1 ();
+extern void isr2 ();
+extern void isr3 ();
+extern void isr4 ();
+extern void isr5 ();
+extern void isr6 ();
+extern void isr7 ();
+extern void isr8 ();
+extern void isr9 ();
+extern void isr10();
+extern void isr11();
+extern void isr12();
+extern void isr13();
+extern void isr14();
+extern void isr15();
+extern void isr16();
+extern void isr17();
+extern void isr18();
+extern void isr19();
+extern void isr20();
+extern void isr21();
+extern void isr22();
+extern void isr23();
+extern void isr24();
+extern void isr25();
+extern void isr26();
+extern void isr27();
+extern void isr28();
+extern void isr29();
+extern void isr30();
+extern void isr31();
+
+
+// IRQ Handlers
+extern void irq0();
+extern void irq1();
+extern void irq2();
+extern void irq3();
+extern void irq4();
+extern void irq5();
+extern void irq6();
+extern void irq7();
+extern void irq8();
+extern void irq9();
+extern void irq10();
+extern void irq11();
+extern void irq12();
+extern void irq13();
+extern void irq14();
+extern void irq15();
 
 void irq_handler(registers_t regs)
 {
@@ -120,10 +171,19 @@ void irq_handler(registers_t regs)
     {
         //reset slave
     }
-
-
     outb(PORT, '4');
-    
+}
+
+static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags)
+{
+    idt_entries[num].base_lo = base & 0xFFFF;
+    idt_entries[num].base_hi = (base >> 16) & 0xFFFF;
+
+    idt_entries[num].sel     = sel;
+    idt_entries[num].always0 = 0;
+    // We must uncomment the OR below when we get to using user-mode.
+    // It sets the interrupt gate's privilege level to 3.
+    idt_entries[num].flags   = flags /* | 0x60 */;
 }
 
 void init_idt()
@@ -163,7 +223,7 @@ void init_idt()
     idt_set_gate(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_set_gate(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_set_gate(31, (uint32_t)isr31, 0x08, 0x8E);
-    
+
     // IRQ entries
     idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
     idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
@@ -186,18 +246,6 @@ void init_idt()
             :
             : "m"(idt_ptr)
             : "memory");
-}
-
-static void idt_set_gate(uint8_t num, uint32_t base, uint16_t sel, uint8_t flags)
-{
-    idt_entries[num].base_lo = base & 0xFFFF;
-    idt_entries[num].base_hi = (base >> 16) & 0xFFFF;
-
-    idt_entries[num].sel     = sel;
-    idt_entries[num].always0 = 0;
-    // We must uncomment the OR below when we get to using user-mode.
-    // It sets the interrupt gate's privilege level to 3.
-    idt_entries[num].flags   = flags /* | 0x60 */;
 }
 
 void idt() {
