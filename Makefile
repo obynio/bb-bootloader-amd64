@@ -31,9 +31,6 @@ boot: QEMUFLAGS += -serial stdio -monitor none -nographic -enable-kvm
 boot: $(TARGET) qemu
 
 # DEBUG
-debug: QEMUFLAGS += -serial stdio -enable-kvm
-debug: $(TARGET) qemu
-
 gdb: QEMU = qemu-system-i386
 gdb: QEMUFLAGS += -S -s -daemonize
 gdb: $(TARGET) qemu
@@ -41,7 +38,7 @@ gdb: $(TARGET) qemu
 		-ex 'target remote localhost:1234'\
 		-ex 'b *0x7c00'\
 		-ex 'continue'
-# /DEBUG
+# !DEBUG
 
 clean:
 	$(RM) $(OBJS) $(TARGET) $(TARGET).map elftest
