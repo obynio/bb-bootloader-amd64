@@ -13,32 +13,18 @@ SECTIONS{
     .magicnb : AT(0x7dfe) {
         SHORT(0xaa55);
     }
-    .gdt : AT(0x7e00) {
-        gdt_addr = .;
-        gdt.o(.text);
-        gdt.o(.data);
-        gdt.o(.bss);
-        gdt.o(.rodata);
+    .stage1 : AT(0x7e00) {
+        _stage1_addr = .;
+        stage1/*.o(.text);
+        stage1/*.o(.data);
+        stage1/*.o(.bss);
+        stage1/*.o(.rodata);
     }
-    .idt : {
-        idt_addr = .;
-        idt.o(.text);
-        idt.o(.data);
-        idt.o(.bss);
-        idt.o(.rodata);
-    }
-    .isr : {
-        isr_addr = .;
-        isr.o(.text);
-        isr.o(.data);
-        isr.o(.bss);
-        isr.o(.rodata);
-    }
-    .paging : {
-        paging_addr = .;
-        paging.o(.text);
-        paging.o(.data);
-        paging.o(.bss);
-        paging.o(.rodata);
+    .stage2 : {
+        idt_asm.o(.text.origin);
+        stage2/*.o(.text);
+        stage2/*.o(.data);
+        stage2/*.o(.bss);
+        stage2/*.o(.rodata);
     }
 }
