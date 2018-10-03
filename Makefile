@@ -8,19 +8,22 @@ VPATH = stage0 stage1 stage2 stage3 stage4
 QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET)
 
-OBJS = boot.o init.o gdt.o idt.o isr.o idt_asm.o paging.o printf.o
+# OBJECT FILES
+STAGE0_OBJS = boot.o init.o
+STAGE1_OBJS = gdt.o
+STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o printf.o
+OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS)
+# !OBJECT FILES
 
 TARGET = wispr
 
+
+# RULES
 all: $(TARGET)
 
-init.o: CFLAGS += -m16
-gdt.o: CFLAGS += -m16
-isr.o: CFLAGS += -m32
-idt.o: CFLAGS += -m32
-idt_asm.o: CFLAGS += -m32
-paging.o: CFLAGS += -m32
-printf.o: CFLAGS += -m32
+$(STAGE0_OBJS): CFLAGS += -m16
+$(STAGE1_OBJS): CFLAGS += -m16
+$(STAGE2_OBJS): CFLAGS += -m32
 
 $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
@@ -52,4 +55,4 @@ gdb: $(TARGET) qemu
 clean:
 	$(RM) $(OBJS) $(TARGET) $(TARGET).map $(TARGET).elf
 
-.PHONY: debug
+.PHONY: all qemu boot debug gdb clean
