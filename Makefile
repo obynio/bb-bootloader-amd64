@@ -8,7 +8,7 @@ VPATH = stage0 stage1 stage2 stage3 stage4
 QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET)
 
-OBJS = boot.o init.o gdt.o idt.o isr.o idt_asm.o paging.o
+OBJS = boot.o init.o gdt.o idt.o isr.o idt_asm.o paging.o printf.o
 
 TARGET = wispr
 
@@ -20,6 +20,7 @@ isr.o: CFLAGS += -m32
 idt.o: CFLAGS += -m32
 idt_asm.o: CFLAGS += -m32
 paging.o: CFLAGS += -m32
+printf.o: CFLAGS += -m32
 
 $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld

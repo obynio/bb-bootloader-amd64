@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-// stage0.c
+// init.c
 void printc(char chr);
 void prints(char *chr);
 uint8_t read_disk(uint8_t nb_sector);
@@ -10,6 +10,7 @@ void gdt();
 
 // idt.c
 void idt();
+void prints_32bits(const char *);
 
 // paging.c
 void paging();
