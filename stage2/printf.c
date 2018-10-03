@@ -16,11 +16,10 @@
  */
 
 #include "root.h"
+#include "printf.h"
 
 #include <stdarg.h>
 #include <stddef.h>
-#include <stdio.h>
-#include <string.h>
 
 size_t strnlen(const char *str, size_t maxlen)
 {

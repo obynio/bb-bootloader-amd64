@@ -1,3 +1,4 @@
+#include "printf.h"
 #include "idt.h"
 #include "isr.h"
 
@@ -8,7 +9,8 @@ void isr_handler(struct registers regs)
 
     }
 
-    OUTB(PORT, regs.int_no + '0');
+    printf("-------------\n");
+    printf("ISR number %d\n", regs.int_no);
 }
 
 void irq_handler(struct registers regs)
@@ -18,5 +20,6 @@ void irq_handler(struct registers regs)
     {
         //reset slave
     }
-    OUTB(PORT, '4');
+    printf("-------------\n");
+    printf("IRQ number %d\n", regs.int_no);
 }
