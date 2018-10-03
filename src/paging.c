@@ -2,6 +2,7 @@
 
 void paging()
 {
+    //init_paging();
     while (1)
         ;
 }
