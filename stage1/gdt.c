@@ -1,8 +1,8 @@
 #include "root.h"
 #include "gdt.h"
 
-gdt_entry_t gdt_entries[3];
-gdt_ptr_t   gdt_ptr;
+struct gdt_entry gdt_entries[3];
+struct gdt_ptr gdt_ptr;
 
 static void gdt_set(int32_t entry, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
@@ -19,7 +19,7 @@ static void gdt_set(int32_t entry, uint32_t base, uint32_t limit, uint8_t access
 
 void init_gdt()
 {
-    gdt_ptr.limit = (sizeof(gdt_entry_t)*5) - 1;
+    gdt_ptr.limit = (sizeof(struct gdt_entry)*3) - 1;
     gdt_ptr.base = (uint32_t)&gdt_entries;
 
     gdt_set(0,0,0,0,0);                    //Null segment

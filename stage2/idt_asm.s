@@ -1,3 +1,5 @@
+.section .text.origin
+
 .macro isr_noerr num
 .global isr\num
 isr\num:

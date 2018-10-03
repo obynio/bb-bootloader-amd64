@@ -1,8 +1,9 @@
 CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -fno-pie -fno-stack-protector -fno-asynchronous-unwind-tables -Os -mno-sse -fno-common
+CPPFLAGS = -Iincludes
 ASFLAGS = -march=i386 --32
 LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 
-VPATH = src
+VPATH = stage0 stage1 stage2 stage3 stage4
 
 QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET)
