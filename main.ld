@@ -27,6 +27,13 @@ SECTIONS{
         idt.o(.bss);
         idt.o(.rodata);
     }
+    .isr : {
+        isr_addr = .;
+        isr.o(.text);
+        isr.o(.data);
+        isr.o(.bss);
+        isr.o(.rodata);
+    }
     .paging : {
         paging_addr = .;
         paging.o(.text);

@@ -1,3 +1,7 @@
+#include <stdint.h>
+
+#define PORT 0x3f8   /* COM1 */
+
 #define DIVISION_BY_ZERO            0
 #define DEBUG_EXCEPTION             1
 #define NON_MASKABLE_INTERRUPT      2
@@ -40,3 +44,5 @@ struct idt_ptr_struct
     uint32_t base;                // The address of the first element in our idt_entry_t array.
 } __attribute__((packed));
 typedef struct idt_ptr_struct idt_ptr_t;
+
+void prints_32bits(const char *chr);
