@@ -6,7 +6,7 @@ LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 VPATH = stage0 stage1 stage2 stage3 stage4
 
 QEMU = qemu-system-x86_64
-QEMUFLAGS = -fda $(TARGET)
+QEMUFLAGS = -fda $(TARGET) -d cpu_reset
 
 # OBJECT FILES
 STAGE0_OBJS = boot.o init.o
@@ -29,7 +29,8 @@ $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
 
-$(TARGET).elf: LDFLAGS += -Tmain.ld --oformat elf64-x86-64
+$(TARGET).elf: CFLAGS += -g
+$(TARGET).elf: LDFLAGS += -Tmain.ld --oformat elf32-i386
 $(TARGET).elf: $(OBJS) main.ld
 	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET).elf
 
@@ -48,8 +49,7 @@ gdb: QEMUFLAGS += -S -s -daemonize
 gdb: $(TARGET) qemu
 	gdb -ex 'set architecture i8086'\
 		-ex 'target remote localhost:1234'\
-		-ex 'b *0x7c00'\
-		-ex 'continue'
+
 # !DEBUG
 
 clean:
