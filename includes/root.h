@@ -21,3 +21,6 @@ void prints_32bits(const char *);
 
 // paging.c
 void paging();
+
+// gdt_64.c
+void gdt_64();

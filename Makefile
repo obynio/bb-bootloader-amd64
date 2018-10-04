@@ -6,13 +6,14 @@ LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
 VPATH = stage0 stage1 stage2 stage3 stage4
 
 QEMU = qemu-system-x86_64
-QEMUFLAGS = -fda $(TARGET) -d cpu_reset
+QEMUFLAGS = -fda $(TARGET)
 
 # OBJECT FILES
 STAGE0_OBJS = boot.o init.o
 STAGE1_OBJS = gdt.o
 STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o printf.o
-OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS)
+STAGE3_OBJS = gdt_64.o
+OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS) $(STAGE3_OBJS)
 # !OBJECT FILES
 
 TARGET = wispr
@@ -24,6 +25,7 @@ all: $(TARGET)
 $(STAGE0_OBJS): CFLAGS += -m16
 $(STAGE1_OBJS): CFLAGS += -m16
 $(STAGE2_OBJS): CFLAGS += -m32
+$(STAGE3_OBJS): CFLAGS += -m32
 
 $(TARGET): LDFLAGS += -Tmain.ld
 $(TARGET): $(OBJS) main.ld

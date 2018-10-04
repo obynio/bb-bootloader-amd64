@@ -43,10 +43,8 @@ static void init_paging()
 
     printf("bLME\n");
     // Set MSR for LME
-    __asm__ volatile("mov $0xc0000080, \%ecx");
-    __asm__ volatile("rdmsr");
-    __asm__ volatile("or $256, \%eax");
-    __asm__ volatile("wrmsr");
+    __asm__ volatile ("rdmsr" :: "c"(0xc0000080));
+    __asm__ volatile ("wrmsr" :: "a"(0x00000100));
 
     printf("bCR3\n");
     // Set cr3 to pml4e address
@@ -64,8 +62,5 @@ static void init_paging()
 void paging()
 {
     init_paging();
-    while (1)
-    {
-        printf("Hello world");
-    }
+    gdt_64();
 }
