@@ -27,4 +27,10 @@ SECTIONS{
         stage2/*.o(.bss);
         stage2/*.o(.rodata);
     }
+    .stage3 : {
+        stage3/*.o(.text);
+        stage3/*.o(.data);
+        stage3/*.o(.bss);
+        stage3/*.o(.rodata);
+    }
 }
