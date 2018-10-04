@@ -165,6 +165,5 @@ void idt() {
     init_serial();
     victory();
     init_idt();
-    __asm__ volatile ("int $9");
     paging();
 }

@@ -10,7 +10,7 @@ void isr_handler(struct registers regs)
     }
 
     printf("-------------\n");
-    printf("ISR number %d\n", regs.int_no);
+    printf("ISR number %u\n", regs.int_no);
 }
 
 void irq_handler(struct registers regs)
@@ -21,5 +21,5 @@ void irq_handler(struct registers regs)
         //reset slave
     }
     printf("-------------\n");
-    printf("IRQ number %d\n", regs.int_no);
+    printf("IRQ number %u\n", regs.int_no);
 }
