@@ -17,3 +17,6 @@ struct gdt_ptr_struct
     uint32_t base;                // The address of the first gdt_entry_t struct.
 } __attribute__((packed));
 typedef struct gdt_ptr_struct gdt_ptr_t;
+
+extern gdt_entry_t gdt_entries[3];
+extern gdt_ptr_t   gdt_ptr;

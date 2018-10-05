@@ -1,7 +1,5 @@
 #include "root.h"
-
-gdt_entry_t gdt_entries[3];
-gdt_ptr_t   gdt_ptr;
+#include "gdt.h"
 
 static void gdt_set_gate(int32_t entry, uint32_t base, uint32_t limit, uint8_t access, uint8_t gran)
 {
@@ -16,7 +14,7 @@ static void gdt_set_gate(int32_t entry, uint32_t base, uint32_t limit, uint8_t a
     gdt_entries[entry].access = access;
 }
 
-void init_gdt()
+static void init_gdt()
 {
     gdt_ptr.limit = (sizeof(gdt_entry_t)*3) - 1;
     gdt_ptr.base = (uint32_t)&gdt_entries;
@@ -24,6 +22,18 @@ void init_gdt()
     gdt_set_gate(0,0,0,0,0);                    //Null segment
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xAF); //Code segment
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0, 0xCF);    //Data segment
+
+    __asm__ volatile ("lgdt %0"
+            :
+            : "m"(gdt_ptr)
+            : "memory");
+    __asm__ volatile ("movw $0x10,\%ax;"
+            "movw \%ax,\%ds;"
+            "movw \%ax,\%es;"
+            "movw \%ax,\%fs;"
+            "movw \%ax,\%gs;"
+            "movw \%ax,\%ss;"
+            "ljmp $0x08, $idt");
 }
 
 void gdt_64() {
