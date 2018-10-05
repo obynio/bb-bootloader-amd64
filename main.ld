@@ -1,15 +1,13 @@
 OUTPUT_FORMAT(binary);
 
 SECTIONS {
-    . = 0x7c00;
-    .stage0 : AT(0x7c00) {
+    .stage0 0x7c00 : {
         *(.stage0*);
     }
-    .magicnb : AT(0x7dfe) {
+    .magicnb 0x7dfe : {
         SHORT(0xaa55);
     }
-    . = 0x7e00;
-    .stage1 : AT(0x7e00) {
+    .stage1 0x7e00 : {
         _stage1_begin = .;
         *(.stage1*);
         _stage1_end = .;

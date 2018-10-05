@@ -55,6 +55,7 @@ $(STAGE3_ELF): $(STAGE3_OBJS)
 	$(OBJCOPY) $(OBJCOPYFLAGS) $@
 
 $(TARGET): $(STAGES_ELF)
+	LOL=$(du -b $(STAGE3_ELF) | cut -f1 | head -n1)
 	$(LD) $(LDFLAGS) -Tmain.ld -Map=$(TARGET).map $^ -o $@
 
 $(TARGET).elf: CFLAGS += -g

@@ -49,7 +49,7 @@ static uint8_t find_ram() {
     return !(flags & 0x1);
 }
 
-static uint8_t read_disk(uint8_t *begin, uint8_t size, uint8_t sector) {
+uint8_t read_disk(uint8_t *begin, uint8_t size, uint8_t sector) {
     uint8_t read_sector = 0;
     printc('A');
     printc(size + 'a');
@@ -67,16 +67,16 @@ void stage0() {
     find_ram();
 
     uint8_t read_nb = 2;
-    read_nb += read_disk((uint8_t*)&_stage1_begin,
-            ((uint8_t)&_stage1_end - (uint8_t)&_stage1_begin) / 512 + 1,
+    read_nb += read_disk((uint8_t*)_stage1_begin,
+            ((uint8_t)_stage1_end - (uint8_t)_stage1_begin) / 512 + 1,
             read_nb);
 
-    read_nb += read_disk((uint8_t*)&_stage2_begin,
-            ((uint8_t)&_stage2_end - (uint8_t)&_stage2_begin) / 512 + 1,
+    read_nb += read_disk((uint8_t*)_stage2_begin,
+            ((uint8_t)_stage2_end - (uint8_t)_stage2_begin) / 512 + 1,
             read_nb);
 
-    read_nb += read_disk((uint8_t*)&_stage3_begin,
-            ((uint8_t)&_stage3_end - (uint8_t)&_stage3_begin) / 512 + 1,
+    read_nb += read_disk((uint8_t*)_stage3_begin,
+            ((uint8_t)_stage3_end - (uint8_t)_stage3_begin) / 512 + 1,
             read_nb);
 
     gdt();
