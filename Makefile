@@ -54,12 +54,19 @@ $(STAGE3_ELF): $(STAGE3_OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 	$(OBJCOPY) $(OBJCOPYFLAGS) $@
 
-$(TARGET): $(STAGES_ELF)
-	$(LD) $(LDFLAGS) -Tmain.ld -Map=$(TARGET).map $^ -o $@
+step1: $(STAGE3_ELF) $(STAGE2_ELF) $(STAGE1_ELF)
+step2: CFLAGS += -DSTAGE1_SIZE=$(shell du -b $(STAGE1_ELF) | cut -f1 | head -n1) \
+	-DSTAGE2_SIZE=$(shell du -b $(STAGE2_ELF) | cut -f1 | head -n1) \
+	-DSTAGE3_SIZE=$(shell du -b $(STAGE3_ELF) | cut -f1 | head -n1)
+
+step2: $(STAGE0_ELF)
+
+$(TARGET): step1 step2
+	$(LD) $(LDFLAGS) -Tmain.ld -Map=$(TARGET).map $(STAGES_ELF) -o $@
 
 $(TARGET).elf: CFLAGS += -g
 $(TARGET).elf: $(STAGES_ELF)
-	$(LD) $(LDFLAGS) -Tmain.ld --oformat elf64-x86-64 $^ -o $(TARGET).elf
+	$(LD) $(LDFLAGS) -Tmain.ld --oformat elf64-x86-64 $^ -o $@
 
 qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
@@ -82,4 +89,4 @@ clean:
 		$(STAGES_ELF) $(STAGE1_ELF).map $(STAGE2_ELF).map\
 		$(STAGE3_ELF).map $(STAGE0_ELF).map
 
-.PHONY: all qemu boot debug gdb clean
+.PHONY: all qemu boot debug gdb clean step1 step2

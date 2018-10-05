@@ -5,12 +5,12 @@
 
 static void init_paging()
 {
-    struct pt pt[512] __attribute__((aligned(0x1000)));
-    struct pdt pdt[512] __attribute__((aligned(0x1000)));
-    struct pdpt pdpt[512] __attribute__((aligned(0x1000)));
-    struct pml4e pml4e[512] __attribute__((aligned(0x1000)));
+    struct pt pt[32] __attribute__((aligned(0x1000)));
+    struct pdt pdt[32] __attribute__((aligned(0x1000)));
+    struct pdpt pdpt[32] __attribute__((aligned(0x1000)));
+    struct pml4e pml4e[32] __attribute__((aligned(0x1000)));
 
-    for (int i = 0; i < 512; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         pt[i].present = 1;
         pt[i].rw = 1;
@@ -18,21 +18,21 @@ static void init_paging()
         pt[i].frame = 0x20000 * i;
     }
 
-    for (int i = 0; i < 512; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         *(uint64_t*)(pdt + i) = (uint64_t)(pt + i);
         pdt[i].present = 1;
         pdt[i].rw = 1;
     }
 
-    for (int i = 0; i < 512; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         *(uint64_t*)(pdpt + i) = (uint64_t)(pdt + i);
         pdpt[i].present = 1;
         pdpt[i].rw = 1;
     }
 
-    for (int i = 0; i < 512; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         *(uint64_t*)(pml4e + i) = (uint64_t)(pdpt + i);
         pml4e[i].present = 1;
@@ -80,13 +80,21 @@ static void init_gdt()
     gdt_ptr.base = (uint32_t)&gdt_entries;
 
     gdt_set(1, 0, 0xFFFFFFFF, 0x9A, 0xAF); //Code segment
-    gdt_set(2, 0, 0xFFFFFFFF, 0, 0xCF);    //Data segment
+    gdt_set(2, 0, 0xFFFFFFFF, 0x92, 0xAF); //Data segment
 
     __asm__ volatile ("lgdt %0"
             :
             : "m"(gdt_ptr)
             : "memory");
-    __asm__ volatile ("ljmp $0x08, $test");
+
+    __asm__ volatile ("cli");
+    __asm__ volatile ("movw $0x10,\%ax;"
+            "movw \%ax,\%ds;"
+            "movw \%ax,\%es;"
+            "movw \%ax,\%fs;"
+            "movw \%ax,\%gs;"
+            "movw \%ax,\%ss;"
+            "ljmp $0x08, $test");
 }
 
 void paging()
