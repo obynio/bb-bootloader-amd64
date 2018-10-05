@@ -46,5 +46,6 @@ static void init_gdt()
 }
 
 void gdt() {
+    prints("FUCKMYLIFE\n");
     init_gdt();
 }

@@ -1,36 +1,31 @@
-ENTRY(boot);
 OUTPUT_FORMAT(binary);
 
-SECTIONS{
+SECTIONS {
     . = 0x7c00;
     .stage0 : AT(0x7c00) {
-        boot.o(.text.origin);
-        init.o(.text);
-        init.o(.data);
-        init.o(.bss);
-        init.o(.rodata);
+        *(.stage0*);
     }
     .magicnb : AT(0x7dfe) {
         SHORT(0xaa55);
     }
+    . = 0x7e00;
     .stage1 : AT(0x7e00) {
-        _stage1_addr = .;
-        stage1/*.o(.text);
-        stage1/*.o(.data);
-        stage1/*.o(.bss);
-        stage1/*.o(.rodata);
+        _stage1_begin = .;
+        *(.stage1*);
+        _stage1_end = .;
     }
-    .stage2 : {
-        idt_asm.o(.text.origin);
-        stage2/*.o(.text);
-        stage2/*.o(.data);
-        stage2/*.o(.bss);
-        stage2/*.o(.rodata);
+    .stage2 ALIGN(0x200) : {
+        _stage2_begin = .;
+        *(.stage2*);
+        _stage2_end = .;
     }
-    .stage3 : {
-        stage3/*.o(.text);
-        stage3/*.o(.data);
-        stage3/*.o(.bss);
-        stage3/*.o(.rodata);
+    .stage3 ALIGN(0x200) : {
+        _stage3_begin = .;
+        *(.stage3*);
+        _stage3_end = .;
+    }
+    /DISCARD/ : {
+        *(.comment*)
+        *(.note.*)
     }
 }

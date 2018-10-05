@@ -3,7 +3,7 @@ CFLAGS = -Wall -Wextra -march=x86-64 -ffreestanding -fno-pie\
 		 -Os -mno-sse -fno-common -Wimplicit-fallthrough=0
 CPPFLAGS = -Iincludes
 ASFLAGS = -march=i386 --32
-LDFLAGS = -m elf_i386 -static -nostdlib --nmagic -Map=$(TARGET).map
+LDFLAGS = -static -nostdlib --nmagic
 
 VPATH = stage0 stage1 stage2 stage3 stage4
 
@@ -18,8 +18,16 @@ STAGE3_OBJS = test.o
 OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS) $(STAGE3_OBJS)
 # !OBJECT FILES
 
+STAGE0_ELF = stage0.elf
+STAGE1_ELF = stage1.elf
+STAGE2_ELF = stage2.elf
+STAGE3_ELF = stage3.elf
+STAGES_ELF = $(STAGE0_ELF) $(STAGE1_ELF) $(STAGE2_ELF) $(STAGE3_ELF)
+
 TARGET = wispr
 
+OBJCOPY = objcopy
+OBJCOPYFLAGS = -O elf64-x86-64
 
 # RULES
 all: $(TARGET)
@@ -29,14 +37,29 @@ $(STAGE1_OBJS): CFLAGS += -m16
 $(STAGE2_OBJS): CFLAGS += -m32
 $(STAGE3_OBJS): CFLAGS += -m64
 
-$(TARGET): LDFLAGS += -Tmain.ld
-$(TARGET): $(OBJS) main.ld
-	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET)
+$(STAGE0_ELF): LDFLAGS += -Tstage0/stage0.ld -r -m elf_i386 -Map=$@.map
+$(STAGE0_ELF): $(STAGE0_OBJS)
+	$(LD) $(LDFLAGS) $^ -o $@
+	$(OBJCOPY) $(OBJCOPYFLAGS) $@
+$(STAGE1_ELF): LDFLAGS += -Tstage1/stage1.ld -r -m elf_i386 -Map=$@.map
+$(STAGE1_ELF): $(STAGE1_OBJS)
+	$(LD) $(LDFLAGS) $^ -o $@
+	$(OBJCOPY) $(OBJCOPYFLAGS) $@
+$(STAGE2_ELF): LDFLAGS += -Tstage2/stage2.ld -r -m elf_i386 -Map=$@.map
+$(STAGE2_ELF): $(STAGE2_OBJS)
+	$(LD) $(LDFLAGS) $^ -o $@
+	$(OBJCOPY) $(OBJCOPYFLAGS) $@
+$(STAGE3_ELF): LDFLAGS += -Tstage3/stage3.ld -r -Map=$@.map
+$(STAGE3_ELF): $(STAGE3_OBJS)
+	$(LD) $(LDFLAGS) $^ -o $@
+	$(OBJCOPY) $(OBJCOPYFLAGS) $@
+
+$(TARGET): $(STAGES_ELF)
+	$(LD) $(LDFLAGS) -Tmain.ld -Map=$(TARGET).map $^ -o $@
 
 $(TARGET).elf: CFLAGS += -g
-$(TARGET).elf: LDFLAGS += -Tmain.ld --oformat elf32-i386
-$(TARGET).elf: $(OBJS) main.ld
-	$(LD) $(LDFLAGS) $(OBJS) -o $(TARGET).elf
+$(TARGET).elf: $(STAGES_ELF)
+	$(LD) $(LDFLAGS) -Tmain.ld --oformat elf64-x86-64 $^ -o $(TARGET).elf
 
 qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
@@ -48,15 +71,15 @@ boot: $(TARGET) qemu
 debug: QEMUFLAGS += -serial stdio -enable-kvm
 debug: $(TARGET) qemu
 
-gdb: QEMU = qemu-system-i386
+#gdb: QEMU = qemu-system-x86_64
 gdb: QEMUFLAGS += -S -s -daemonize
-gdb: $(TARGET) qemu
-	gdb -ex 'set architecture i8086'\
-		-ex 'target remote localhost:1234'\
-
+gdb: $(TARGET).elf $(TARGET) qemu
+	gdb -ex 'target remote localhost:1234'
 # !DEBUG
 
 clean:
-	$(RM) $(OBJS) $(TARGET) $(TARGET).map $(TARGET).elf
+	$(RM) $(OBJS) $(TARGET) $(TARGET).map $(TARGET).elf\
+		$(STAGES_ELF) $(STAGE1_ELF).map $(STAGE2_ELF).map\
+		$(STAGE3_ELF).map $(STAGE0_ELF).map
 
 .PHONY: all qemu boot debug gdb clean
