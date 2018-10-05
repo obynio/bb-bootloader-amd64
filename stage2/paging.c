@@ -89,14 +89,6 @@ static void init_gdt()
     __asm__ volatile ("ljmp $0x08, $test");
 }
 
-void test()
-{
-    // There is no 64 bits IDT so need to disable interrupts
-    __asm__ volatile("cli");
-    while (1)
-        ;
-}
-
 void paging()
 {
     init_paging();

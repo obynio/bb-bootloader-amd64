@@ -1,6 +1,12 @@
 #include "root.h"
 
-extern char _stage1_addr;
+extern uint8_t _stage1_begin;
+extern uint8_t _stage2_begin;
+extern uint8_t _stage3_begin;
+
+extern uint8_t _stage1_end;
+extern uint8_t _stage2_end;
+extern uint8_t _stage3_end;
 
 void printc(char chr) {
     __asm__ volatile ("int $0x10"::"a"(0x0e00 | chr),"b"(0x00));
@@ -13,14 +19,16 @@ void prints(char *chr) {
 }
 
 // return true if init is successful
-uint8_t get_a20() {
+/*
+static uint8_t get_a20() {
     uint8_t a = 0;
     __asm__ volatile ("int $0x15":"=r"(a):"a"(0x2402));
     return a;
 }
+*/
 
 // return true if a20 is initialized
-void set_a20(uint8_t status) {
+static void set_a20(uint8_t status) {
     if (status)
         __asm__ volatile ("int $0x15"::"a"(0x2401));
     else
@@ -28,7 +36,7 @@ void set_a20(uint8_t status) {
 }
 
 // return true if init is successful
-uint8_t find_ram() {
+static uint8_t find_ram() {
     uint8_t flags = 0;
     __asm__ volatile ("int $0x15":"=r"(flags):
             "a"(0xe820),
@@ -41,51 +49,35 @@ uint8_t find_ram() {
     return !(flags & 0x1);
 }
 
-uint8_t read_disk(uint8_t nb_sector) {
-
-    // ah = 0x02 // bios read sector function
-    // al = 0x04 // number of sector to read
-    // ch = 0x00 // select cylinder 0
-    // cl = 0x02 // read second sector
-    // dh = 0x00 // select head 0
-    // dl = 0x00 // drive number
-    //
-    // al // number of sector read
+static uint8_t read_disk(uint8_t *begin, uint8_t size, uint8_t sector) {
     uint8_t read_sector = 0;
+    printc('A');
+    printc(size + 'a');
     __asm__ volatile ("int $0x13":"=r"(read_sector):
-            "a"(0x0200 | nb_sector),
-            "b"(&_stage1_addr),
-            "c"(0x2),
+            "a"(0x0200 | size),
+            "b"(begin),
+            "c"(sector),
             "d"(0x0));
 
     return read_sector;
 }
 
 void stage0() {
-    char boot[] = "boot";
-    prints(boot);
-
     set_a20(1);
+    find_ram();
 
-    if (get_a20())
-    {
-        char a20[] = "/a20";
-        prints(a20);
-    }
+    uint8_t read_nb = 2;
+    read_nb += read_disk((uint8_t*)&_stage1_begin,
+            ((uint8_t)&_stage1_end - (uint8_t)&_stage1_begin) / 512 + 1,
+            read_nb);
 
-    if (find_ram())
-    {
-        char ram[] = "/ram";
-        prints(ram);
-    }
+    read_nb += read_disk((uint8_t*)&_stage2_begin,
+            ((uint8_t)&_stage2_end - (uint8_t)&_stage2_begin) / 512 + 1,
+            read_nb);
 
-    char read[] = "/read";
-    prints(read);
-
-    uint8_t read_nb = read_disk(9);
-    printc(read_nb + 48);
+    read_nb += read_disk((uint8_t*)&_stage3_begin,
+            ((uint8_t)&_stage3_end - (uint8_t)&_stage3_begin) / 512 + 1,
+            read_nb);
 
     gdt();
-
-    return;
 }
