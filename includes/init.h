@@ -1,8 +1,11 @@
-struct read_disk
+#include "root.h"
+
+struct disk_info
 {
-    uint16_t base_low : 4;
-    uint16_t base_high : 4;
- 8     LengthLow  Low 32 Bits of Length in Bytes
- 12     LengthHigh  High 32 Bits of Length in Bytes
- 16     Type  Address type of  this range.
-}
+    uint32_t base_low;
+    uint32_t base_high;
+    uint32_t length_low;
+    uint32_t length_high;
+    uint32_t type;
+    uint32_t acpi;
+}__attribute__((packed));

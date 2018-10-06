@@ -1,12 +1,9 @@
+#include "init.h"
 #include "root.h"
 
-extern uint8_t _stage1_begin;
-extern uint8_t _stage2_begin;
-extern uint8_t _stage3_begin;
-
-extern uint8_t _stage1_end;
-extern uint8_t _stage2_end;
-extern uint8_t _stage3_end;
+extern char _stage1_begin;
+extern char _stage2_begin;
+extern char _stage3_begin;
 
 void printc(char chr) {
     __asm__ volatile ("int $0x10"::"a"(0x0e00 | chr),"b"(0x00));
@@ -35,28 +32,31 @@ static void set_a20(uint8_t status) {
         __asm__ volatile ("int $0x15"::"a"(0x2400));
 }
 
-// return true if init is successful
-static uint8_t find_ram() {
+static uint8_t find_ram(struct disk_info *buffer) {
+    uint32_t cont_id = 0;
     uint8_t flags = 0;
-    __asm__ volatile ("int $0x15":"=r"(flags):
+
+    do {
+        __asm__ volatile ("int $0x15":"=r"(flags), "=b"(cont_id):
             "a"(0xe820),
             "b"(0x0),
             "c"(0x20),
-            "d"(0x534d4150));
+            "d"(0x534d4150),
+            "D"(buffer));
+    } while (!buffer->type);
 
     // get cf flag
     // cf clear if successful and set on error
     return !(flags & 0x1);
 }
 
-uint8_t read_disk(uint8_t *begin, uint8_t size, uint8_t sector) {
+static uint8_t read_disk(uint16_t begin, uint8_t nb_sector, uint8_t sector) {
     uint8_t read_sector = 0;
-    printc('A');
-    printc(size + 'a');
+
     __asm__ volatile ("int $0x13":"=r"(read_sector):
-            "a"(0x0200 | size),
+            "a"(0x0200 | nb_sector),
             "b"(begin),
-            "c"(sector),
+            "c"(0x0000 | sector),
             "d"(0x0));
 
     return read_sector;
@@ -64,20 +64,10 @@ uint8_t read_disk(uint8_t *begin, uint8_t size, uint8_t sector) {
 
 void stage0() {
     set_a20(1);
-    find_ram();
 
     uint8_t read_nb = 2;
-    read_nb += read_disk((uint8_t*)_stage1_begin,
-            ((uint8_t)_stage1_end - (uint8_t)_stage1_begin) / 512 + 1,
-            read_nb);
-
-    read_nb += read_disk((uint8_t*)_stage2_begin,
-            ((uint8_t)_stage2_end - (uint8_t)_stage2_begin) / 512 + 1,
-            read_nb);
-
-    read_nb += read_disk((uint8_t*)_stage3_begin,
-            ((uint8_t)_stage3_end - (uint8_t)_stage3_begin) / 512 + 1,
-            read_nb);
+    read_nb += read_disk(&_stage1_begin,
+            (STAGE1_SIZE + STAGE2_SIZE + STAGE3_SIZE) / 512, read_nb);
 
     gdt();
 }
