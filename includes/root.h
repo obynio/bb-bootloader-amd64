@@ -17,6 +17,7 @@ void gdt();
 // idt.c
 void idt();
 void prints_32bits(const char *);
+void printc_32bits(const char);
 
 // paging.c
 void paging();

@@ -16,6 +16,7 @@
  */
 
 #include "root.h"
+#include "serial.h"
 #include "printf.h"
 
 #include <stdarg.h>
@@ -311,6 +312,17 @@ int sprintf(char *buf, const char *fmt, ...)
 	return i;
 }
 
+static void printc_64bits(char c)
+{
+    OUTB(PORT, c);
+}
+
+void prints_64bits(const char *chr)
+{
+    while (*chr)
+        printc_64bits(*chr++);
+}
+
 int printf(const char *fmt, ...)
 {
 	char printf_buf[1024];
@@ -321,7 +333,7 @@ int printf(const char *fmt, ...)
 	printed = vsprintf(printf_buf, fmt, args);
 	va_end(args);
 
-	prints_32bits(printf_buf);
+	prints_64bits(printf_buf);
 
 	return printed;
 }

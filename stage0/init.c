@@ -32,6 +32,7 @@ static void set_a20(uint8_t status) {
         __asm__ volatile ("int $0x15"::"a"(0x2400));
 }
 
+/*
 static uint8_t find_ram(struct disk_info *buffer) {
     uint32_t cont_id = 0;
     uint8_t flags = 0;
@@ -49,6 +50,7 @@ static uint8_t find_ram(struct disk_info *buffer) {
     // cf clear if successful and set on error
     return !(flags & 0x1);
 }
+*/
 
 static uint8_t read_disk(uint16_t begin, uint8_t nb_sector, uint8_t sector) {
     uint8_t read_sector = 0;

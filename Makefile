@@ -8,13 +8,13 @@ LDFLAGS = -static -nostdlib --nmagic
 VPATH = stage0 stage1 stage2 stage3 stage4
 
 QEMU = qemu-system-x86_64
-QEMUFLAGS = -fda $(TARGET)
+QEMUFLAGS = -fda $(TARGET) -enable-kvm
 
 # OBJECT FILES
 STAGE0_OBJS = boot.o init.o
 STAGE1_OBJS = gdt.o
-STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o printf.o
-STAGE3_OBJS = test.o
+STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o
+STAGE3_OBJS = test.o printf.o
 OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS) $(STAGE3_OBJS)
 # !OBJECT FILES
 
@@ -71,11 +71,11 @@ $(TARGET).elf: $(STAGES_ELF)
 qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
 
-boot: QEMUFLAGS += -serial stdio -monitor none -nographic -enable-kvm
+boot: QEMUFLAGS += -serial stdio -monitor none -nographic
 boot: $(TARGET) qemu
 
 # DEBUG
-debug: QEMUFLAGS += -serial stdio -enable-kvm
+debug: QEMUFLAGS += -serial stdio
 debug: $(TARGET) qemu
 
 #gdb: QEMU = qemu-system-x86_64

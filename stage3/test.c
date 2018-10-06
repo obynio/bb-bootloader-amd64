@@ -3,7 +3,7 @@
 
 void test()
 {
-    printf("LOL");
+    printf("LOL: %d", 12345);
     while (1)
         ;
 }
