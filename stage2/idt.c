@@ -164,7 +164,6 @@ void init_idt()
 
 void idt() {
     init_serial();
-    victory();
     init_idt();
     paging();
 }

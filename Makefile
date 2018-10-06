@@ -11,6 +11,7 @@ QEMU = qemu-system-x86_64
 QEMUFLAGS = -fda $(TARGET) -enable-kvm
 
 # OBJECT FILES
+EXTRA_OBJECT ?= win.o
 STAGE0_OBJS = boot.o init.o
 STAGE1_OBJS = gdt.o
 STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o
@@ -24,7 +25,7 @@ STAGE2_ELF = stage2.elf
 STAGE3_ELF = stage3.elf
 STAGES_ELF = $(STAGE0_ELF) $(STAGE1_ELF) $(STAGE2_ELF) $(STAGE3_ELF)
 
-TARGET = wispr
+TARGET = hello64
 
 OBJCOPY = objcopy
 OBJCOPYFLAGS = -O elf64-x86-64
@@ -50,18 +51,19 @@ $(STAGE2_ELF): $(STAGE2_OBJS)
 	$(LD) $(LDFLAGS) $^ -o $@
 	$(OBJCOPY) $(OBJCOPYFLAGS) $@
 $(STAGE3_ELF): LDFLAGS += -Tstage3/stage3.ld -r -Map=$@.map
-$(STAGE3_ELF): $(STAGE3_OBJS)
+$(STAGE3_ELF): $(STAGE3_OBJS) $(EXTRA_OBJECT)
 	$(LD) $(LDFLAGS) $^ -o $@
 	$(OBJCOPY) $(OBJCOPYFLAGS) $@
 
+prepare: $(EXTRA_OBJECT)
+	cp $^ stage3
 step1: $(STAGE3_ELF) $(STAGE2_ELF) $(STAGE1_ELF)
 step2: CFLAGS += -DSTAGE1_SIZE=$(shell du -b $(STAGE1_ELF) | cut -f1 | head -n1) \
 	-DSTAGE2_SIZE=$(shell du -b $(STAGE2_ELF) | cut -f1 | head -n1) \
 	-DSTAGE3_SIZE=$(shell du -b $(STAGE3_ELF) | cut -f1 | head -n1)
-
 step2: $(STAGE0_ELF)
 
-$(TARGET): step1 step2
+$(TARGET): prepare step1 step2
 	$(LD) $(LDFLAGS) -Tmain.ld -Map=$(TARGET).map $(STAGES_ELF) -o $@
 
 $(TARGET).elf: CFLAGS += -g
