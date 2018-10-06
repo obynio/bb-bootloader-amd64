@@ -1,8 +1,9 @@
 #include "root.h"
 #include "idt.h"
 #include "isr.h"
+#include "serial.h"
 
-void init_serial() {
+static void init_serial() {
     OUTB(PORT + 1, 0x00);    // Disable all interrupts
     OUTB(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
     OUTB(PORT + 0, 0x03);    // Set divisor to 3 (lo byte) 38400 baud

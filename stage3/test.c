@@ -3,7 +3,6 @@
 
 void test()
 {
-    printf("LOL");
     while (1)
         ;
 }

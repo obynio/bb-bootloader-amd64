@@ -1,4 +1,4 @@
-#include "printf.h"
+#include "root.h"
 #include "idt.h"
 #include "isr.h"
 
@@ -9,8 +9,9 @@ void isr_handler(struct registers regs)
 
     }
 
-    printf("-------------\n");
-    printf("ISR number %u\n", regs.int_no);
+    prints_32bits("-------------\n");
+    prints_32bits("ISR number ");
+    printc_32bits(regs.int_no + 'a');
 }
 
 void irq_handler(struct registers regs)
@@ -20,6 +21,7 @@ void irq_handler(struct registers regs)
     {
         //reset slave
     }
-    printf("-------------\n");
-    printf("IRQ number %u\n", regs.int_no);
+    prints_32bits("-------------\n");
+    prints_32bits("IRQ number ");
+    printc_32bits(regs.int_no + 'a');
 }
