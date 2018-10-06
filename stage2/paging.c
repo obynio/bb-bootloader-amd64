@@ -2,61 +2,78 @@
 #include "root.h"
 #include "paging.h"
 
+static void setup_pml4e(struct pml4e *pml4e_ptr, struct pdpe *base) {
+    pml4e_ptr->p = 1;
+    pml4e_ptr->rw = 1;
+    pml4e_ptr->us = 0;
+    pml4e_ptr->pwt = 0;
+    pml4e_ptr->pcd = 1;
+    pml4e_ptr->a = 0;
+    pml4e_ptr->ign = 0;
+    pml4e_ptr->mbz = 0;
+    pml4e_ptr->avl = 0;
+    pml4e_ptr->pdpba = (uint64_t)base >> 12;
+    pml4e_ptr->available = 0;
+    pml4e_ptr->nx = 0;
+}
+static void setup_pdpe(struct pdpe *pdpe_ptr, struct pde *base) {
+    pdpe_ptr->p = 1;
+    pdpe_ptr->rw = 1;
+    pdpe_ptr->us = 0;
+    pdpe_ptr->pwt = 0;
+    pdpe_ptr->pcd = 1;
+    pdpe_ptr->a = 0;
+    pdpe_ptr->ign = 0;
+    pdpe_ptr->zero = 0;
+    pdpe_ptr->mbz = 0;
+    pdpe_ptr->avl = 0;
+    pdpe_ptr->pdpba = (uint64_t)base >> 12;
+    pdpe_ptr->available = 0;
+    pdpe_ptr->nx = 0;
+}
+static void setup_pde(struct pde *pde_ptr) {
+    for (int i = 0; i < 512; i++, pde_ptr++)
+    {
+        pde_ptr->p = 1;
+        pde_ptr->rw = 1;
+        pde_ptr->us = 0; 
+        pde_ptr->pwt = 0;
+        pde_ptr->pcd = 1;
+        pde_ptr->a = 0;
+        pde_ptr->d = 0;
+        pde_ptr->one = 1;
+        pde_ptr->g = 0;
+        pde_ptr->avl = 0;
+        pde_ptr->pat = 0;
+        pde_ptr->mbz = 0;
+        pde_ptr->pdpba = i;
+        pde_ptr->available = 0;
+        pde_ptr->nx = 0;
+    }
+}
+
+struct pde pde[512] __attribute__((aligned(0x1000)));
+struct pdpe pdpe[512] __attribute__((aligned(0x1000)));
+struct pml4e pml4e[512] __attribute__((aligned(0x1000)));
+
 static void init_paging()
 {
-    struct pt pt[32] __attribute__((aligned(0x1000)));
-    struct pdt pdt[32] __attribute__((aligned(0x1000)));
-    struct pdpt pdpt[32] __attribute__((aligned(0x1000)));
-    struct pml4e pml4e[32] __attribute__((aligned(0x1000)));
+    setup_pml4e(pml4e, pdpe);
+    setup_pdpe(pdpe, pde);
+    setup_pde(pde);
 
-    for (int i = 0; i < 32; ++i)
-    {
-        pt[i].present = 1;
-        pt[i].rw = 1;
-        pt[i].huge_page = 1;
-        pt[i].frame = 0x20000 * i;
-    }
+    // set cr3
+    __asm__ volatile ("mov $pml4e, %eax;"
+            "mov %eax, %cr3");
 
-    for (int i = 0; i < 1; ++i)
-    {
-        *(uint64_t*)(pdt + i) = (uint64_t)(pt + i);
-        pdt[i].present = 1;
-        pdt[i].rw = 1;
-    }
+    // enable pae
+    SET_BIT(cr4, 5); 
 
-    for (int i = 0; i < 1; ++i)
-    {
-        *(uint64_t*)(pdpt + i) = (uint64_t)(pdt + i);
-        pdpt[i].present = 1;
-        pdpt[i].rw = 1;
-    }
-
-    for (int i = 0; i < 1; ++i)
-    {
-        *(uint64_t*)(pml4e + i) = (uint64_t)(pdpt + i);
-        pml4e[i].present = 1;
-        pml4e[i].rw = 1;
-    }
-
-    //prints_32bits("bPAE\n");
-    // Set PAE
-    SET_BIT(cr4, 5);
-
-    //prints_32bits("bLME\n");
-    // Set MSR for LME
+    // enable longmode
     __asm__ volatile ("rdmsr" :: "c"(0xc0000080));
     __asm__ volatile ("wrmsr" :: "a"(0x00000100));
-
-    //prints_32bits("bCR3\n");
-    // Set cr3 to pml4e address
-    __asm__ volatile ("mov %0, %%eax;"
-            "mov %%eax, %%cr3"
-            :
-            : "m"(pml4e)
-            : "memory");
-
-    //prints_32bits("bPG\n");
-    // Enable PG bit (paging)
+   
+    // enable paging
     SET_BIT(cr0, 31);
 }
 
