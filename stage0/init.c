@@ -15,15 +15,6 @@ void prints(char *chr) {
         printc(*chr++);
 }
 
-// return true if init is successful
-/*
-static uint8_t get_a20() {
-    uint8_t a = 0;
-    __asm__ volatile ("int $0x15":"=r"(a):"a"(0x2402));
-    return a;
-}
-*/
-
 // return true if a20 is initialized
 static void set_a20(uint8_t status) {
     if (status)
@@ -31,26 +22,6 @@ static void set_a20(uint8_t status) {
     else
         __asm__ volatile ("int $0x15"::"a"(0x2400));
 }
-
-/*
-static uint8_t find_ram(struct disk_info *buffer) {
-    uint32_t cont_id = 0;
-    uint8_t flags = 0;
-
-    do {
-        __asm__ volatile ("int $0x15":"=r"(flags), "=b"(cont_id):
-            "a"(0xe820),
-            "b"(0x0),
-            "c"(0x20),
-            "d"(0x534d4150),
-            "D"(buffer));
-    } while (!buffer->type);
-
-    // get cf flag
-    // cf clear if successful and set on error
-    return !(flags & 0x1);
-}
-*/
 
 static uint8_t read_disk(uint16_t begin, uint8_t nb_sector, uint8_t sector) {
     uint8_t read_sector = 0;
