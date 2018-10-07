@@ -14,7 +14,7 @@ QEMUFLAGS = -fda $(TARGET) -enable-kvm
 EXTRA_OBJECT ?= win.o
 STAGE0_OBJS = boot.o init.o
 STAGE1_OBJS = gdt.o
-STAGE2_OBJS = idt.o isr.o idt_asm.o paging.o
+STAGE2_OBJS = idt.o isr.o paging.o
 STAGE3_OBJS = test.o printf.o
 OBJS = $(STAGE0_OBJS) $(STAGE1_OBJS) $(STAGE2_OBJS) $(STAGE3_OBJS)
 # !OBJECT FILES
@@ -74,11 +74,10 @@ qemu: $(TARGET)
 	$(QEMU) $(QEMUFLAGS)
 
 boot: QEMUFLAGS += -serial stdio -monitor none -nographic
-boot: $(TARGET) qemu
+boot debug: $(TARGET) qemu
 
 # DEBUG
 debug: QEMUFLAGS += -serial stdio
-debug: $(TARGET) qemu
 
 #gdb: QEMU = qemu-system-x86_64
 gdb: QEMUFLAGS += -S -s -daemonize

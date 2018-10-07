@@ -2,13 +2,30 @@
 #include "idt.h"
 #include "isr.h"
 
+__attribute__((naked))
+void isr_stub()
+{
+    __asm__ volatile("pusha");
+    __asm__ volatile("call isr_handler");
+    __asm__ volatile("popa");
+    __asm__ volatile("add $8, %esp");
+    __asm__ volatile("sti");
+    __asm__ volatile("iret");
+}
+
+__attribute__((naked))
+void irq_stub()
+{
+    __asm__ volatile("pusha");
+    __asm__ volatile("call irq_handler");
+    __asm__ volatile("popa");
+    __asm__ volatile("add $8, %esp");
+    __asm__ volatile("sti");
+    __asm__ volatile("iret");
+}
+
 void isr_handler(struct registers regs)
 {
-    if (regs.int_no == GENERAL_PROTECTION_FAULT)
-    {
-
-    }
-
     prints_32bits("-------------\n");
     prints_32bits("ISR number ");
     printc_32bits(regs.int_no + 'a');
@@ -16,11 +33,6 @@ void isr_handler(struct registers regs)
 
 void irq_handler(struct registers regs)
 {
-    //If int_no >= 40, we must reset the slave as well as the master
-    if(regs.int_no >= 40)
-    {
-        //reset slave
-    }
     prints_32bits("-------------\n");
     prints_32bits("IRQ number ");
     printc_32bits(regs.int_no + 'a');
