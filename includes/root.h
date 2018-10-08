@@ -24,3 +24,5 @@ void paging();
 
 // test.c
 void test();
+
+void jump();

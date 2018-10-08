@@ -42,7 +42,7 @@ static void init_gdt()
             "movw %ax,%fs;"
             "movw %ax,%gs;"
             "movw %ax,%ss;"
-            "jmpl $0x08, $idt");
+            "jmpl $0x08, $jump");
 }
 
 void gdt() {
