@@ -79,10 +79,18 @@ boot debug: $(TARGET) qemu
 # DEBUG
 debug: QEMUFLAGS += -serial stdio
 
-#gdb: QEMU = qemu-system-x86_64
+gdb64: QEMUFLAGS += -S -s -daemonize
+gdb64: clean all $(TARGET).elf qemu
+	gdb -ex 'target remote localhost:1234' \
+		-ex 'symbol-file hello64.elf' \
+		-ex 'layout regs'
+gdb: QEMU = qemu-system-i386
 gdb: QEMUFLAGS += -S -s -daemonize
-gdb: $(TARGET).elf $(TARGET) qemu
-	gdb -ex 'target remote localhost:1234'
+gdb: clean all $(TARGET).elf qemu
+	gdb -ex 'target remote localhost:1234' \
+		-ex 'set architecture i8086' \
+		-ex 'symbol-file hello64.elf' \
+		-ex 'layout regs'
 # !DEBUG
 
 clean:

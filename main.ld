@@ -10,15 +10,16 @@ SECTIONS {
     .magicnb 0x7dfe : {
         SHORT(0xaa55);
     }
-    .stage1 ALIGN(0x200) : {
-        _next_addr = .;
+    .stage1 0x100000 : {
+        _beg = .;
         *(.stage1*);
     }
-    .stage2 0x100000 : {
+    .stage2 ALIGN(0x200) : {
         *(.stage2*);
     }
     .stage3 ALIGN(0x200) : {
         *(.stage3*);
+        _end = .;
     }
     /DISCARD/ : {
         *(.comment*)
