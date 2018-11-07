@@ -7,8 +7,6 @@ The main objective is to write a little bootloader abd kernel code that will wri
 * `stage2` is for protected mode
 * `stage3` is for long mode
 
-![qemu-boot](https://user-images.githubusercontent.com/2095991/48159447-80b42080-e2d5-11e8-8056-464674f395c8.png)
-
 ## Usage
 
 A simple `make` and `make boot` should do the trick. Make sure to have all the dependencies installed.
