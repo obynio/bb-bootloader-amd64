@@ -1,4 +1,4 @@
-# wispr
+# bb-bootloader-amd64
 
 > A x86_64 Hello World, from bootloader to printf
 
